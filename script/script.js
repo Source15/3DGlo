@@ -341,30 +341,80 @@ window.addEventListener('DOMContentLoaded', () => {
    //send-ajax-form
 
    const sendForm = () => {
-      const errorMessage = 'Что пошло не так  ...',
-         loadMessage = 'Загрузка ...',
-         successMesage = 'Спасибо! Мы скоро с вами свяжемся!';
-
-      const form = document.getElementById('form1');
+      const errorMessage = 'Что-то пошло не так...',
+         loadMessage = 'Загрузка...',
+         successMessage = 'Спасибо! Мы скоро с вами свяжемся!';
 
       const statusMessage = document.createElement('div');
-      statusMessage.textContent = 'Тут будет сообщение!';
-      statusMessage.style.cssText = 'font-size: 2rem;';
 
-      form.addEventListener('submit', (event) => {
+      statusMessage.style.cssText = `font-size:2rem;`;
+      document.addEventListener('submit', (event) => {
          event.preventDefault();
-         form.appendChild(statusMessage);
+         let target = event.target;
 
-         const request = new XMLHttpRequest();
-         request.open('POST', './server.php');
-         request.setRequestHeader('Content-Type', 'multipart/form-data');
-         const formData = new FormData(form);
-         request.send(formData);
+         const formData = new FormData(target);
+         let currentPhoneInput = target.querySelector('input.form-phone');
+
+         let body = {};
+         // for(let val of formData.entries()){
+         //   body[val[0]] = val[1];
+         // }
+         formData.forEach((val, key) => {
+            body[key] = val;
+         });
+         if (/^\+?[78]*\d{10}$/.test(currentPhoneInput.value)) {
+            currentPhoneInput.style.border = '';
+            target.appendChild(statusMessage);
+            statusMessage.textContent = loadMessage;
+            postData(body, () => {
+               statusMessage.textContent = successMessage; //callbackOutput()
+            }, (error) => {
+               statusMessage.textContent = errorMessage; //callbackError()
+               console.error(error)
+            });
+         } else {
+            currentPhoneInput.style.border = '2px solid red';
+            return;
+         }
+         clearInputsForms(target);
       });
+
+      //clearInputsForms
+      const clearInputsForms = (target) => {
+         let targetFormInputs = target.querySelectorAll('input');
+         targetFormInputs.forEach((item) => {
+            item.value = '';
+         });
+      };
+
+      //textInputsValidate
+      const textInputsValidate = () => {
+         document.addEventListener('click', (event) => {
+            let target = event.target;
+            if (target.matches('[name="user_name"]') || target.matches('[name="user_message"]')) {
+               target.addEventListener('input', () => {
+                  target.value = target.value.replace(/[^^А-Яа-я ]/i, '');
+               });
+            }
+         });
+      };
+      textInputsValidate();
+
+      const postData = (body, callbackOutput, callbackError) => {
+         const request = new XMLHttpRequest();
+         request.addEventListener('readystatechange', () => {
+            if (request.readyState !== 4) return;
+            request.status === 200 ? callbackOutput() : callbackError(request.status);
+         });
+
+         request.open('POST', './server.php');
+         // request.setRequestHeader('Content-Type', 'multipart/form-data');//вариант формата отправки
+         request.setRequestHeader('Content-Type', 'application/json');
+
+
+         // request.send(formData);//вариант формата отправки
+         request.send(JSON.stringify(body));
+      }
    };
-
    sendForm();
-
-
-
 });

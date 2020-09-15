@@ -356,9 +356,7 @@ window.addEventListener('DOMContentLoaded', () => {
          let currentPhoneInput = target.querySelector('input.form-phone');
 
          let body = {};
-         // for(let val of formData.entries()){
-         //   body[val[0]] = val[1];
-         // }
+
          formData.forEach((val, key) => {
             body[key] = val;
          });
@@ -366,14 +364,21 @@ window.addEventListener('DOMContentLoaded', () => {
             currentPhoneInput.style.border = '';
             target.appendChild(statusMessage);
             statusMessage.textContent = loadMessage;
-            postData(body, () => {
-               statusMessage.textContent = successMessage; //callbackOutput()
-            }, (error) => {
-               statusMessage.textContent = errorMessage; //callbackError()
-               console.error(error)
-            });
+
+            postData(body)
+               .then((response) => {
+                  if (response.status !== 200) {
+                     throw new new Error('status network not 200');
+                  }
+                  statusMessage.textContent = successMessage;
+               })
+               .catch((error) => {
+                  statusMessage.textContent = errorMessage;
+                  console.error(error);
+               });
+
          } else {
-            currentPhoneInput.style.border = '2px solid red';
+            target.style.cssText = 'border:2px solid red;background:#fff';
             return;
          }
          clearInputsForms(target);
@@ -387,33 +392,38 @@ window.addEventListener('DOMContentLoaded', () => {
          });
       };
 
-      //textInputsValidate
-      const textInputsValidate = () => {
-         document.addEventListener('click', (event) => {
+      //InputsValidate
+      const inputsValidate = () => {
+         document.addEventListener('input', (event) => {
             let target = event.target;
             if (target.matches('[name="user_name"]') || target.matches('[name="user_message"]')) {
-               target.addEventListener('input', () => {
-                  target.value = target.value.replace(/[^^А-Яа-я ]/i, '');
-               });
+               target.value = target.value.replace(/[^^А-Яа-я ]/i, '');
+            } else if (target.matches('[name="user_phone"]')) {
+               target.value = target.value.replace(/[^\+?[0-9]/i, '');
+               if (/^\+?[78][0-9]{10}$/.test(target.value)) {
+                  target.style.cssText = 'border:2px solid green';
+                  target.setCustomValidity('');
+               } else if (target.value.length === 0) {
+                  target.style.border = '';
+               } else {
+                  target.setCustomValidity('Введите значение в формате +79260010101 или 89851508484');
+                  target.style.cssText = 'border:2px solid red;';
+               }
             }
          });
       };
-      textInputsValidate();
+      inputsValidate();
 
-      const postData = (body, callbackOutput, callbackError) => {
-         const request = new XMLHttpRequest();
-         request.addEventListener('readystatechange', () => {
-            if (request.readyState !== 4) return;
-            request.status === 200 ? callbackOutput() : callbackError(request.status);
+      const postData = (body) => {
+
+         return fetch('./server.php', {
+            method: 'POST',
+            headers: {
+               'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(body),
+            credentials: 'include' //проверка cookie на сервере
          });
-
-         request.open('POST', './server.php');
-         // request.setRequestHeader('Content-Type', 'multipart/form-data');//вариант формата отправки
-         request.setRequestHeader('Content-Type', 'application/json');
-
-
-         // request.send(formData);//вариант формата отправки
-         request.send(JSON.stringify(body));
       }
    };
    sendForm();

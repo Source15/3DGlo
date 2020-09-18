@@ -619,7 +619,10 @@ main a {
     font-size: 13px;
     font-weight: 400;
     padding-left: 18px;
-    outline: transparent
+    outline: transparent;
+    appearance: none;
+    -moz-appearance: none;
+    -webkit-appearance: none;
 }
 
 .calc-total {

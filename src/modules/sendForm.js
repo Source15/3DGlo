@@ -29,6 +29,9 @@ const sendForm = () => {
                         throw new new Error('status network not 200');
                     }
                     statusMessage.textContent = successMessage;
+                    setTimeout(() => {
+                        statusMessage.textContent = '';
+                    }, 3000);
                 })
                 .catch((error) => {
                     statusMessage.textContent = errorMessage;
@@ -54,7 +57,7 @@ const sendForm = () => {
         document.addEventListener('input', (event) => {
             let target = event.target;
             if (target.matches('[name="user_name"]') || target.matches('[name="user_message"]')) {
-                target.value = target.value.replace(/[^^А-Яа-я ]/i, '');
+                target.value = target.value.replace(/^[а-яА-Я]+$/);
             } else if (target.matches('[name="user_phone"]')) {
                 target.value = target.value.replace(/[^\+?[0-9]/i, '');
                 if (/^\+?[78][0-9]{10}$/.test(target.value)) {

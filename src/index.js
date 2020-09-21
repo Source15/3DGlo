@@ -8,7 +8,7 @@ import calculate from './modules/calculate';
 import sendForm from './modules/sendForm';
 import slider from './modules/slider';
 //таймер
-countTimer('30 september 2020');
+countTimer();
 //меню
 toggleMenu();
 //popup

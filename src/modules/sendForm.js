@@ -56,11 +56,12 @@ const sendForm = () => {
     const inputsValidate = () => {
         document.addEventListener('input', (event) => {
             let target = event.target;
+
             if (target.matches('[name="user_name"]')) {
-                target.value = target.value.replace(/[^а-яА-ЯёЁ\s]/, '');
+                target.value = target.value.replace(/[^а-яА-ЯёË]/, '');
             }
             if (target.matches('[name="user_message"]')) {
-                target.value = target.value.replace(/[^^А-Яа-я\W ]/i, "");
+                target.value = target.value.replace(/[^а-яА-ЯёЁ,.\s]/, '');
             } else if (target.matches('[name="user_phone"]')) {
                 target.value = target.value.replace(/[^\+?[0-9]/i, '');
                 if (/^\+?[78][0-9]{10}$/.test(target.value)) {

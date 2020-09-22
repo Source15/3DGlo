@@ -57,7 +57,7 @@ const sendForm = () => {
         document.addEventListener('input', (event) => {
             let target = event.target;
             if (target.matches('[name="user_name"]')) {
-                target.value = target.value.replace(/[^^А-Яа-я ]/i, "");
+                target.value = target.value.replace(/[^а-яА-ЯёЁ\s]/, '');
             }
             if (target.matches('[name="user_message"]')) {
                 target.value = target.value.replace(/[^^А-Яа-я\W ]/i, "");
